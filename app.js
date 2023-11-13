@@ -1,108 +1,18 @@
-const apps = [
-  {
-    name: 'papelera',
-    src: 'trash-can.svg',
-    class: 'icon',
-    render: (targetEl) => {
-      //
-      const files = [
-        {
-          name: 'movies__XXX',
-          type: 'zip',
-          icon: 'zip.svg',
-        },
-        {
-          name: 'cv-final-final',
-          type: 'docx',
-          icon: 'docx.svg',
-        },
-      ];
-      const divContainer = document.createElement('div');
-      divContainer.classList.add('file-list');
-      files.forEach((file) => {
-        //
-        const divFile = document.createElement('div');
-        divFile.classList.add('file');
-        const fileIcon = document.createElement('img');
-        fileIcon.width = 32;
-
-        fileIcon.src = `/img/icons/${file.icon}`;
-        const fileName = document.createElement('p');
-        fileName.innerText = `${file.name}.${file.type}`;
-        divFile.appendChild(fileIcon);
-        divFile.appendChild(fileName);
-
-        divContainer.appendChild(divFile);
-      });
-      targetEl.appendChild(divContainer);
-    },
-  },
-  {
-    name: 'documents',
-    src: 'folder.svg',
-    class: 'icon',
-    render: (targetEl) => {
-      //
-      const files = [
-        {
-          name: 'brochure',
-          type: 'zip',
-          icon: 'pdf.svg',
-        },
-        {
-          name: 'estatuto fundación',
-          type: 'docx',
-          icon: 'docx.svg',
-        },
-      ];
-      const divContainer = document.createElement('div');
-      divContainer.classList.add('file-list');
-      files.forEach((file) => {
-        //
-        const divFile = document.createElement('div');
-        divFile.classList.add('file');
-        const fileIcon = document.createElement('img');
-        fileIcon.width = 32;
-
-        fileIcon.src = `/img/icons/${file.icon}`;
-        const fileName = document.createElement('p');
-        fileName.innerText = `${file.name}.${file.type}`;
-        divFile.appendChild(fileIcon);
-        divFile.appendChild(fileName);
-
-        divContainer.appendChild(divFile);
-      });
-      targetEl.appendChild(divContainer);
-    },
-  },
-  {
-    name: 'notes',
-    src: 'notepad.svg',
-    class: 'icon',
-    render: (targetEl) => {
-      //
-
-      const textArea = document.createElement('div');
-      textArea.classList.add('editor');
-      textArea.setAttribute('contenteditable', true);
-      textArea.setAttribute('autofocus', true);
-      textArea.style.width = `${100}%`;
-      textArea.style.height = `${100}%`;
-      textArea.innerHTML = 'Untitled';
-      targetEl.appendChild(textArea);
-    },
-  },
-];
-
-let openApps = [];
-let activeWindow = null;
-const screen = document.getElementById('content');
-const windowsContainer = document.getElementById('windows-container');
-
-const secondMenuContainer = document.getElementById('menu__right-container');
-const secondMenu = document.getElementById('menu__right');
-const secondMenuOverlay = document.getElementById('menu__right-overlay');
-const time = document.getElementById('time');
+/*
+- declarations
+- funciones
+- variables
+- eventos
+- executions
+*/
+// DECLARATIONS
+class Window {
+  constructor() {}
+  open() {}
+  minimize() {}
+  close() {}
+}
+// FUNCIONES
 const showSendmenu = () => {
   secondMenuContainer.style.display = 'flex';
 };
@@ -160,7 +70,68 @@ function minWindow(id) {
 function maxWindow(id) {
   updateNavBar();
 }
-window.addEventListener('DOMContentLoaded', () => {
+function closeWindow(id) {
+  const w = document.getElementById(id);
+  w.classList.add('close');
+  openApps = openApps.filter((app) => app.name !== w.name);
+  setTimeout(() => {
+    w.remove();
+    updateNavBar();
+  }, 300);
+}
+function updateNavBar() {
+  const minApps = openApps;
+  const footerNav = document.getElementById('navbar');
+  // console.log({ minApps });
+  footerNav.innerHTML = '';
+
+  minApps.forEach((app) => {
+    const div = document.createElement('div');
+    div.classList.add('min__app');
+    if (activeWindow && activeWindow.name === app.name) {
+      div.classList.add('active');
+    }
+    div.id = app.name;
+    div.innerText = app.name;
+    div.innerHTML = `<img width="32px" src="/img/icons/${app.src}"/>`;
+    div.onclick = (e) => {
+      app.state = 'open';
+
+      const windowApp = document.getElementById(`window__${app.name}`);
+      windowApp.classList.remove('min');
+      windowApp.classList.add('open');
+      if (activeWindow) {
+        activeWindow.classList.remove('active');
+      }
+      activeWindow = windowApp;
+      activeWindow.classList.add('active');
+
+      updateNavBar();
+    };
+    footerNav.appendChild(div);
+  });
+}
+function selectText(containerid) {
+  if (document.selection) {
+    // IE
+    var range = document.body.createTextRange();
+    range.moveToElementText(document.getElementById(containerid));
+    range.select();
+  } else if (window.getSelection) {
+    var range = document.createRange();
+    range.selectNode(document.getElementById(containerid));
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(range);
+  }
+}
+function initApp() {
+  /*
+    - variables
+    - funciones
+    - events
+    - executions
+  */
+
   hideSendmenu();
   setInterval(() => {
     var date = new Date();
@@ -314,67 +285,114 @@ window.addEventListener('DOMContentLoaded', () => {
     //
     iconsContainer.appendChild(div);
   });
-  //
-});
-
-function closeWindow(id) {
-  const w = document.getElementById(id);
-  w.classList.add('close');
-  openApps = openApps.filter((app) => app.name !== w.name);
-  setTimeout(() => {
-    w.remove();
-    updateNavBar();
-  }, 300);
 }
-function updateNavBar() {
-  const minApps = openApps;
-  const footerNav = document.getElementById('navbar');
-  // console.log({ minApps });
-  footerNav.innerHTML = '';
+// VARIABLES
+const apps = [
+  {
+    name: 'papelera',
+    src: 'trash-can.svg',
+    class: 'icon',
+    render: (targetEl) => {
+      //
+      const files = [
+        {
+          name: 'movies__XXX',
+          type: 'zip',
+          icon: 'zip.svg',
+        },
+        {
+          name: 'cv-final-final',
+          type: 'docx',
+          icon: 'docx.svg',
+        },
+      ];
+      const divContainer = document.createElement('div');
+      divContainer.classList.add('file-list');
+      files.forEach((file) => {
+        //
+        const divFile = document.createElement('div');
+        divFile.classList.add('file');
+        const fileIcon = document.createElement('img');
+        fileIcon.width = 32;
 
-  minApps.forEach((app) => {
-    const div = document.createElement('div');
-    div.classList.add('min__app');
-    if (activeWindow && activeWindow.name === app.name) {
-      div.classList.add('active');
-    }
-    div.id = app.name;
-    div.innerText = app.name;
-    div.innerHTML = `<img width="32px" src="/img/icons/${app.src}"/>`;
-    div.onclick = (e) => {
-      app.state = 'open';
+        fileIcon.src = `/img/icons/${file.icon}`;
+        const fileName = document.createElement('p');
+        fileName.innerText = `${file.name}.${file.type}`;
+        divFile.appendChild(fileIcon);
+        divFile.appendChild(fileName);
 
-      const windowApp = document.getElementById(`window__${app.name}`);
-      windowApp.classList.remove('min');
-      windowApp.classList.add('open');
-      if (activeWindow) {
-        activeWindow.classList.remove('active');
-      }
-      activeWindow = windowApp;
-      activeWindow.classList.add('active');
+        divContainer.appendChild(divFile);
+      });
+      targetEl.appendChild(divContainer);
+    },
+  },
+  {
+    name: 'documents',
+    src: 'folder.svg',
+    class: 'icon',
+    render: (targetEl) => {
+      //
+      const files = [
+        {
+          name: 'brochure',
+          type: 'zip',
+          icon: 'pdf.svg',
+        },
+        {
+          name: 'estatuto fundación',
+          type: 'docx',
+          icon: 'docx.svg',
+        },
+      ];
+      const divContainer = document.createElement('div');
+      divContainer.classList.add('file-list');
+      files.forEach((file) => {
+        //
+        const divFile = document.createElement('div');
+        divFile.classList.add('file');
+        const fileIcon = document.createElement('img');
+        fileIcon.width = 32;
 
-      updateNavBar();
-    };
-    footerNav.appendChild(div);
-  });
-}
-class Window {
-  constructor() {}
-  open() {}
-  minimize() {}
-  close() {}
-}
+        fileIcon.src = `/img/icons/${file.icon}`;
+        const fileName = document.createElement('p');
+        fileName.innerText = `${file.name}.${file.type}`;
+        divFile.appendChild(fileIcon);
+        divFile.appendChild(fileName);
 
-function selectText(containerid) {
-  if (document.selection) {
-    // IE
-    var range = document.body.createTextRange();
-    range.moveToElementText(document.getElementById(containerid));
-    range.select();
-  } else if (window.getSelection) {
-    var range = document.createRange();
-    range.selectNode(document.getElementById(containerid));
-    window.getSelection().removeAllRanges();
-    window.getSelection().addRange(range);
-  }
-}
+        divContainer.appendChild(divFile);
+      });
+      targetEl.appendChild(divContainer);
+    },
+  },
+  {
+    name: 'notes',
+    src: 'notepad.svg',
+    class: 'icon',
+    render: (targetEl) => {
+      //
+
+      const textArea = document.createElement('div');
+      textArea.classList.add('editor');
+      textArea.setAttribute('contenteditable', true);
+      textArea.setAttribute('autofocus', true);
+      textArea.style.width = `${100}%`;
+      textArea.style.height = `${100}%`;
+      textArea.innerHTML = 'Untitled';
+      targetEl.appendChild(textArea);
+    },
+  },
+];
+let openApps = [];
+let activeWindow = null;
+const screen = document.getElementById('content');
+const windowsContainer = document.getElementById('windows-container');
+
+const secondMenuContainer = document.getElementById('menu__right-container');
+const secondMenu = document.getElementById('menu__right');
+const secondMenuOverlay = document.getElementById('menu__right-overlay');
+const time = document.getElementById('time');
+
+// EVENTS
+window.addEventListener('DOMContentLoaded', initApp);
+
+// EXECUTION
