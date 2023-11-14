@@ -10,7 +10,7 @@ class Window {
 const showSendmenu = () => {
   secondMenuContainer.style.display = 'flex';
 };
-const hideSendmenu = () => {
+const hideSecondMenuContainer = () => {
   secondMenuContainer.style.display = 'none';
 };
 function dragElement(elmnt, zone) {
@@ -118,16 +118,8 @@ function selectText(containerid) {
     window.getSelection().addRange(range);
   }
 }
-// START
-function initApp() {
-  /*
-    - variables
-    - funciones
-    - events
-    - executions
-  */
-
-  hideSendmenu();
+// update clock
+function setClockInterval() {
   setInterval(() => {
     var date = new Date();
     const day = ('00' + date.getDate()).slice(-2);
@@ -139,6 +131,8 @@ function initApp() {
 
     time.innerText = `${hours}:${minutes}`;
   }, 1000);
+}
+function setListener__rightClick__on__screen() {
   screen.addEventListener(
     'contextmenu',
     (e) => {
@@ -157,10 +151,14 @@ function initApp() {
     },
     false
   );
+}
+function setListener__click__on__secondMenuOverlay() {
   secondMenuOverlay.addEventListener('click', (e) => {
-    hideSendmenu();
+    hideSecondMenuContainer();
   });
-
+}
+function createUIDesktopIcons() {
+  //
   // UI
   const iconsContainer = document.getElementById('icons');
   apps.forEach((icon) => {
@@ -170,9 +168,9 @@ function initApp() {
     div.setAttribute('name', icon.name);
     div.innerText = icon.name;
     div.innerHTML = `
-      <img width="32px" src="/img/icons/${icon.src}"/>
-      <p class="name">${icon.name}</p>
-    `;
+    <img width="32px" src="/img/icons/${icon.src}"/>
+    <p class="name">${icon.name}</p>
+  `;
     div.addEventListener('click', (event) => {
       const windowExist = openApps.find((app) => app.name === icon.name);
 
@@ -229,14 +227,14 @@ function initApp() {
       windowDiv.style.top = `${Math.random() * 60 + 100}px`;
       windowDiv.style.left = `${Math.random() * 400 + 200}px`;
       windowDiv.innerHTML = `
-         <div class="window__header">
-          <p class="name">${icon.name}
-            </p>
-          <div class="window__controls"></div>
-         </div>
-         <div class="window__content"></div>
-         <div class="window__footer"></div>
-      `;
+       <div class="window__header">
+        <p class="name">${icon.name}
+          </p>
+        <div class="window__controls"></div>
+       </div>
+       <div class="window__content"></div>
+       <div class="window__footer"></div>
+    `;
 
       const contentTarget = windowDiv.querySelector('.window__content');
       icon.render(contentTarget);
@@ -258,8 +256,8 @@ function initApp() {
       const closeControl = document.createElement('div');
       closeControl.classList.add('control');
       closeControl.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
-      <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
-    </svg>`;
+    <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+  </svg>`;
       closeControl.onclick = (event) => {
         closeWindow(windowDiv.id);
       };
@@ -279,6 +277,15 @@ function initApp() {
     iconsContainer.appendChild(div);
   });
 }
+// START
+function initApp() {
+  setClockInterval();
+  hideSecondMenuContainer();
+  createUIDesktopIcons();
+  setListener__rightClick__on__screen();
+  setListener__click__on__secondMenuOverlay();
+}
+
 //#endregion
 // #region VARIABLES
 
@@ -390,4 +397,5 @@ const time = document.getElementById('time');
 // #region EVENTS
 window.addEventListener('DOMContentLoaded', initApp);
 //#endregion
-// EXECUTION
+// #region EXECUTION
+// #endregion
