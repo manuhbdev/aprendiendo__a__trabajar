@@ -1,18 +1,12 @@
-/*
-- declarations
-- funciones
-- variables
-- eventos
-- executions
-*/
-// DECLARATIONS
+// #region DECLARATIONS
 class Window {
   constructor() {}
   open() {}
   minimize() {}
   close() {}
 }
-// FUNCIONES
+//#endregion
+// #region FUNCIONES
 const showSendmenu = () => {
   secondMenuContainer.style.display = 'flex';
 };
@@ -124,6 +118,7 @@ function selectText(containerid) {
     window.getSelection().addRange(range);
   }
 }
+// START
 function initApp() {
   /*
     - variables
@@ -144,7 +139,6 @@ function initApp() {
 
     time.innerText = `${hours}:${minutes}`;
   }, 1000);
-
   screen.addEventListener(
     'contextmenu',
     (e) => {
@@ -166,7 +160,6 @@ function initApp() {
   secondMenuOverlay.addEventListener('click', (e) => {
     hideSendmenu();
   });
-  //
 
   // UI
   const iconsContainer = document.getElementById('icons');
@@ -286,7 +279,9 @@ function initApp() {
     iconsContainer.appendChild(div);
   });
 }
-// VARIABLES
+//#endregion
+// #region VARIABLES
+
 const apps = [
   {
     name: 'papelera',
@@ -384,15 +379,15 @@ const apps = [
 ];
 let openApps = [];
 let activeWindow = null;
+
 const screen = document.getElementById('content');
 const windowsContainer = document.getElementById('windows-container');
-
 const secondMenuContainer = document.getElementById('menu__right-container');
 const secondMenu = document.getElementById('menu__right');
 const secondMenuOverlay = document.getElementById('menu__right-overlay');
 const time = document.getElementById('time');
-
-// EVENTS
+// #endregion
+// #region EVENTS
 window.addEventListener('DOMContentLoaded', initApp);
-
+//#endregion
 // EXECUTION
