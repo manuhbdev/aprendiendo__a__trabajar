@@ -1,11 +1,10 @@
-// #region DECLARATIONS
 class Window {
   constructor() {}
   open() {}
   minimize() {}
   close() {}
 }
-//#endregion
+
 // #region FUNCIONES
 const showSendmenu = () => {
   secondMenuContainer.style.display = 'flex';
@@ -161,6 +160,7 @@ function createUIDesktopIcons() {
   //
   // UI
   const iconsContainer = document.getElementById('icons');
+  iconsContainer.innerHTML = '';
   apps.forEach((icon) => {
     //
     const div = document.createElement('div');
@@ -286,8 +286,19 @@ function initApp() {
   setListener__click__on__secondMenuOverlay();
 }
 
+function createNewFolder() {
+  apps.push({
+    name: 'new-folder',
+    src: 'folder.svg',
+    class: 'icon',
+    render: (targetEl) => {},
+  });
+  hideSecondMenuContainer();
+  createUIDesktopIcons();
+  console.log(apps);
+}
+
 //#endregion
-// #region VARIABLES
 
 const apps = [
   {
@@ -393,9 +404,5 @@ const secondMenuContainer = document.getElementById('menu__right-container');
 const secondMenu = document.getElementById('menu__right');
 const secondMenuOverlay = document.getElementById('menu__right-overlay');
 const time = document.getElementById('time');
-// #endregion
-// #region EVENTS
+
 window.addEventListener('DOMContentLoaded', initApp);
-//#endregion
-// #region EXECUTION
-// #endregion
