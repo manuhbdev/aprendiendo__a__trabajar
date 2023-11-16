@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="./main.css" />
+    <link rel="stylesheet" href="./styles/main.css" />
     <title>My OS</title>
   </head>
 
@@ -85,14 +85,16 @@
     <div class="content" id="content">
       <div class="windows-container" id="windows-container"></div>
       <div class="icons" id="icons"></div>
-      <div class="menu__right-container" id="menu__right-container">
+      <footer class="footer-app-bar" id="footer-app-bar"></footer>
+      <!-- right-click menu -->
+      <div
+        class="menu__right-container"
+        id="menu__right-container"
+        style="display: none"
+      >
         <div class="overlay" id="menu__right-overlay"></div>
         <div class="menu__right" id="menu__right">
-          <button
-            class="action"
-            onclick="hideSecondMenuContainer()"
-            id="action__new-file"
-          >
+          <button class="action" name="new-file" id="action__new-file">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="16"
@@ -109,11 +111,7 @@
               /></svg
             >new file
           </button>
-          <button
-            class="action"
-            onclick="createNewFolder()"
-            id="action__new-folder"
-          >
+          <button class="action" name="new-folder" id="action__new-folder">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="16"
@@ -130,11 +128,7 @@
               /></svg
             >new folder
           </button>
-          <button
-            class="action"
-            onclick="hideSecondMenuContainer()"
-            id="action__customize"
-          >
+          <button class="action" name="personalizar" id="action__customize">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="16"
@@ -148,11 +142,7 @@
               /></svg
             >Personalizar
           </button>
-          <button
-            class="action"
-            onclick="hideSecondMenuContainer()"
-            id="action__settings"
-          >
+          <button class="action" name="settings" id="action__settings">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="16"
@@ -171,10 +161,9 @@
           </button>
         </div>
       </div>
-      <footer class="navbar" id="navbar"></footer>
     </div>
 
     <!--  -->
-    <script src="./app.js"></script>
+    <script type="module" src="./app2.js"></script>
   </body>
 </html>

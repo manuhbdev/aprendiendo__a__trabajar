@@ -55,9 +55,8 @@ function minWindow(id) {
   const windowApp = document.getElementById(id);
   windowApp.classList.remove('open');
   windowApp.classList.add('min');
-  const app = openApps.find((app) => app.name === windowApp.name);
+  const app = apps.find((app) => app.id === windowApp.id);
   app.state = 'min';
-
   updateNavBar();
 }
 function maxWindow(id) {
@@ -73,36 +72,35 @@ function closeWindow(id) {
   }, 300);
 }
 function updateNavBar() {
-  const minApps = openApps;
   const footerNav = document.getElementById('navbar');
-  // console.log({ minApps });
   footerNav.innerHTML = '';
 
-  minApps.forEach((app) => {
-    const div = document.createElement('div');
-    div.classList.add('min__app');
-    if (activeWindow && activeWindow.name === app.name) {
-      div.classList.add('active');
-    }
-    div.id = app.name;
-    div.innerText = app.name;
-    div.innerHTML = `<img width="32px" src="/img/icons/${app.src}"/>`;
-    div.onclick = (e) => {
-      app.state = 'open';
-
-      const windowApp = document.getElementById(`window__${app.name}`);
-      windowApp.classList.remove('min');
-      windowApp.classList.add('open');
-      if (activeWindow) {
-        activeWindow.classList.remove('active');
+  apps
+    .filter((a) => a.state !== 'close')
+    .forEach((app) => {
+      const div = document.createElement('div');
+      div.classList.add('min__app');
+      if (activeWindow && activeWindow.name === app.name) {
+        div.classList.add('active');
       }
-      activeWindow = windowApp;
-      activeWindow.classList.add('active');
+      div.id = app.name;
+      div.innerText = app.name;
+      div.innerHTML = `<img width="32px" src="/img/icons/${app.icon}"/>`;
+      div.onclick = (e) => {
+        app.state = 'open';
+        const windowApp = document.getElementById(`${app.id}`);
+        windowApp.classList.remove('min');
+        windowApp.classList.add('open');
+        if (activeWindow) {
+          activeWindow.classList.remove('active');
+        }
+        activeWindow = windowApp;
+        activeWindow.classList.add('active');
 
-      updateNavBar();
-    };
-    footerNav.appendChild(div);
-  });
+        updateNavBar();
+      };
+      footerNav.appendChild(div);
+    });
 }
 function selectText(containerid) {
   if (document.selection) {
@@ -117,7 +115,7 @@ function selectText(containerid) {
     window.getSelection().addRange(range);
   }
 }
-// update clock
+
 function setClockInterval() {
   setInterval(() => {
     var date = new Date();
@@ -164,15 +162,14 @@ function createUIDesktopIcons() {
   apps.forEach((icon) => {
     //
     const div = document.createElement('div');
-    div.classList.add(icon.class);
+    div.classList.add('icon');
     div.setAttribute('name', icon.name);
-    div.innerText = icon.name;
     div.innerHTML = `
-    <img width="32px" src="/img/icons/${icon.src}"/>
+    <img width="32px" src="/img/icons/${icon.icon}"/>
     <p class="name">${icon.name}</p>
   `;
     div.addEventListener('click', (event) => {
-      const windowExist = openApps.find((app) => app.name === icon.name);
+      const windowExist = apps.find((app) => app.id === icon.id);
 
       if (windowExist && windowExist.state === 'open') {
         return;
@@ -184,7 +181,7 @@ function createUIDesktopIcons() {
 
         windowHtml.classList.remove('min');
         windowHtml.classList.add('open');
-
+        windowExist.state = 'open';
         if (activeWindow) {
           activeWindow.classList.remove('active');
         }
@@ -218,11 +215,9 @@ function createUIDesktopIcons() {
         updateNavBar();
       });
       //
-
-      openApps.push({ name: icon.name, state: 'open', ...icon });
-
+      icon.state = 'open';
       //
-      windowDiv.id = `window__${icon.name}`;
+      windowDiv.id = `${icon.id}`;
       windowDiv.name = icon.name;
       windowDiv.style.top = `${Math.random() * 60 + 100}px`;
       windowDiv.style.left = `${Math.random() * 400 + 200}px`;
@@ -237,7 +232,7 @@ function createUIDesktopIcons() {
     `;
 
       const contentTarget = windowDiv.querySelector('.window__content');
-      icon.render(contentTarget);
+      icon.renderContent(contentTarget);
 
       const controlContainer = windowDiv.querySelector('.window__controls');
 
@@ -286,115 +281,215 @@ function initApp() {
   setListener__click__on__secondMenuOverlay();
 }
 
-function createNewFolder() {
-  apps.push({
-    name: 'new-folder',
-    src: 'folder.svg',
-    class: 'icon',
-    render: (targetEl) => {},
+function createNewFolder(name = 'new-folder') {
+  const newFolder = new Folder({
+    id: apps.length,
+    name,
+    icon: 'folder.svg',
+    content: [],
   });
+  apps.push(newFolder);
   hideSecondMenuContainer();
   createUIDesktopIcons();
-  console.log(apps);
 }
 
 //#endregion
+class App {
+  constructor({ id, name, className, type = 'app', content, icon }) {
+    this.id = `${type}__${name}__${id}`.toLocaleLowerCase();
+    this.name = name;
+    this.className = className;
+    this.icon = icon;
+    this.content = content;
+    this.type = type;
+    this.state = 'close';
+    this.HTMLContent = '';
+  }
+  renderContent() {}
+}
+class Folder extends App {
+  constructor(shape) {
+    shape.type = 'folder';
+    super(shape);
+  }
+  renderContent(targetHTMLElement) {
+    const containerDIV = document.createElement('div');
+    containerDIV.classList.add('file-list');
+    this.content.forEach((file) => {
+      //
+      const divFile = document.createElement('div');
+      divFile.classList.add('file');
+      const fileIcon = document.createElement('img');
+      fileIcon.width = 32;
 
+      fileIcon.src = `/img/icons/${file.icon}`;
+      const fileName = document.createElement('p');
+      fileName.innerText = `${file.name}.${file.type}`;
+      divFile.appendChild(fileIcon);
+      divFile.appendChild(fileName);
+
+      containerDIV.appendChild(divFile);
+    });
+    targetHTMLElement.appendChild(containerDIV);
+  }
+}
+class Notes extends App {
+  constructor(shape) {
+    shape.name = 'notes';
+    shape.icon = 'notepad.svg';
+    shape.type = 'notepad';
+    super(shape);
+  }
+  renderContent(targetHTMLElement) {
+    const textArea = document.createElement('div');
+    textArea.classList.add('editor');
+    textArea.setAttribute('contenteditable', true);
+    textArea.setAttribute('autofocus', true);
+    textArea.style.width = `${100}%`;
+    textArea.style.height = `${100}%`;
+    textArea.innerHTML = 'Untitled';
+    targetHTMLElement.appendChild(textArea);
+  }
+}
 const apps = [
-  {
-    name: 'papelera',
-    src: 'trash-can.svg',
-    class: 'icon',
-    render: (targetEl) => {
-      //
-      const files = [
-        {
-          name: 'movies__XXX',
-          type: 'zip',
-          icon: 'zip.svg',
-        },
-        {
-          name: 'cv-final-final',
-          type: 'docx',
-          icon: 'docx.svg',
-        },
-      ];
-      const divContainer = document.createElement('div');
-      divContainer.classList.add('file-list');
-      files.forEach((file) => {
-        //
-        const divFile = document.createElement('div');
-        divFile.classList.add('file');
-        const fileIcon = document.createElement('img');
-        fileIcon.width = 32;
-
-        fileIcon.src = `/img/icons/${file.icon}`;
-        const fileName = document.createElement('p');
-        fileName.innerText = `${file.name}.${file.type}`;
-        divFile.appendChild(fileIcon);
-        divFile.appendChild(fileName);
-
-        divContainer.appendChild(divFile);
-      });
-      targetEl.appendChild(divContainer);
-    },
-  },
-  {
+  new Folder({
+    id: 0,
     name: 'documents',
-    src: 'folder.svg',
-    class: 'icon',
-    render: (targetEl) => {
-      //
-      const files = [
-        {
-          name: 'brochure',
-          type: 'zip',
-          icon: 'pdf.svg',
-        },
-        {
-          name: 'estatuto fundación',
-          type: 'docx',
-          icon: 'docx.svg',
-        },
-      ];
-      const divContainer = document.createElement('div');
-      divContainer.classList.add('file-list');
-      files.forEach((file) => {
-        //
-        const divFile = document.createElement('div');
-        divFile.classList.add('file');
-        const fileIcon = document.createElement('img');
-        fileIcon.width = 32;
+    icon: 'folder.svg',
+    content: [
+      {
+        name: 'estatuto_fundación',
+        type: 'docx',
+        icon: 'docx.svg',
+      },
+      {
+        name: 'cv-final-final',
+        type: 'docx',
+        icon: 'docx.svg',
+      },
+      {
+        name: 'cv-final',
+        type: 'docx',
+        icon: 'docx.svg',
+      },
+      {
+        name: 'cv-final-english',
+        type: 'docx',
+        icon: 'docx.svg',
+      },
+    ],
+  }),
+  new Folder({
+    id: 1,
+    name: 'Papelera',
+    icon: 'trash-can.svg',
+    content: [
+      {
+        name: 'movies___XXX',
+        type: 'zip',
+        icon: 'zip.svg',
+      },
+    ],
+  }),
+  new Notes({
+    id: 2,
+    content: [],
+  }),
+  // {
+  //   name: 'papelera',
+  //   src: 'trash-can.svg',
+  //   class: 'icon',
+  //   render: (targetEl) => {
+  //     //
+  //     const files = [
+  //       {
+  //         name: 'movies__XXX',
+  //         type: 'zip',
+  //         icon: 'zip.svg',
+  //       },
+  //       {
+  //         name: 'cv-final-final',
+  //         type: 'docx',
+  //         icon: 'docx.svg',
+  //       },
+  //     ];
+  //     const divContainer = document.createElement('div');
+  //     divContainer.classList.add('file-list');
+  //     files.forEach((file) => {
+  //       //
+  //       const divFile = document.createElement('div');
+  //       divFile.classList.add('file');
+  //       const fileIcon = document.createElement('img');
+  //       fileIcon.width = 32;
 
-        fileIcon.src = `/img/icons/${file.icon}`;
-        const fileName = document.createElement('p');
-        fileName.innerText = `${file.name}.${file.type}`;
-        divFile.appendChild(fileIcon);
-        divFile.appendChild(fileName);
+  //       fileIcon.src = `/img/icons/${file.icon}`;
+  //       const fileName = document.createElement('p');
+  //       fileName.innerText = `${file.name}.${file.type}`;
+  //       divFile.appendChild(fileIcon);
+  //       divFile.appendChild(fileName);
 
-        divContainer.appendChild(divFile);
-      });
-      targetEl.appendChild(divContainer);
-    },
-  },
-  {
-    name: 'notes',
-    src: 'notepad.svg',
-    class: 'icon',
-    render: (targetEl) => {
-      //
+  //       divContainer.appendChild(divFile);
+  //     });
+  //     targetEl.appendChild(divContainer);
+  //   },
+  // },
+  // {
+  //   name: 'documents',
+  //   src: 'folder.svg',
+  //   class: 'icon',
+  //   render: (targetEl) => {
+  //     //
+  //     const files = [
+  //       {
+  //         name: 'brochure',
+  //         type: 'zip',
+  //         icon: 'pdf.svg',
+  //       },
+  //       {
+  //         name: 'estatuto fundación',
+  //         type: 'docx',
+  //         icon: 'docx.svg',
+  //       },
+  //     ];
+  //     const divContainer = document.createElement('div');
+  //     divContainer.classList.add('file-list');
+  //     files.forEach((file) => {
+  //       //
+  //       const divFile = document.createElement('div');
+  //       divFile.classList.add('file');
+  //       const fileIcon = document.createElement('img');
+  //       fileIcon.width = 32;
 
-      const textArea = document.createElement('div');
-      textArea.classList.add('editor');
-      textArea.setAttribute('contenteditable', true);
-      textArea.setAttribute('autofocus', true);
-      textArea.style.width = `${100}%`;
-      textArea.style.height = `${100}%`;
-      textArea.innerHTML = 'Untitled';
-      targetEl.appendChild(textArea);
-    },
-  },
+  //       fileIcon.src = `/img/icons/${file.icon}`;
+  //       const fileName = document.createElement('p');
+  //       fileName.innerText = `${file.name}.${file.type}`;
+  //       divFile.appendChild(fileIcon);
+  //       divFile.appendChild(fileName);
+
+  //       divContainer.appendChild(divFile);
+  //     });
+  //     targetEl.appendChild(divContainer);
+  //   },
+  // },
+  // {
+  //   name: 'notes',
+  //   src: 'notepad.svg',
+  //   class: 'icon',
+  //   render: (targetEl) => {
+  //     //
+
+  //     const textArea = document.createElement('div');
+  //     textArea.classList.add('editor');
+  //     textArea.setAttribute('contenteditable', true);
+  //     textArea.setAttribute('autofocus', true);
+  //     textArea.style.width = `${100}%`;
+  //     textArea.style.height = `${100}%`;
+  //     textArea.innerHTML = 'Untitled';
+  //     targetEl.appendChild(textArea);
+  //   },
+  // },
 ];
+
 let openApps = [];
 let activeWindow = null;
 
