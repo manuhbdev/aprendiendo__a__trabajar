@@ -142,12 +142,6 @@ function actionNewFolder() {
 }
 function actionNewFile() {
   console.log('new-file');
-  const newFile = new File({
-    id: apps.length,
-    name: 'new-file',
-    content: '',
-  });
-  apps.push(newFile);
 }
 function actionPersonalizar() {
   console.log('personalizar');
@@ -192,13 +186,13 @@ function setListener__click__on__action(actions) {
 }
 // [START]
 function initApp() {
+  createApps();
   // UI
   drawDesktopIcons(desktopIcons, desktopIconsContainer);
   drawWindows(windows, windowsContainer);
   // listeners
   setListener__rightClick__on__screen(screenElement, rightClickMenuOverlay);
   setListener__click__on__action(actionsButtons);
-
   // intervals
   setClockInterval(timeElement);
   setFooterBarUpdateInterval();
@@ -261,7 +255,7 @@ const apps = [
 ];
 let windows = [];
 let desktopIcons = [];
-createApps();
+
 // UI ref
 const screenElement = document.getElementById('content');
 const secondMenuContainer = document.getElementById('menu__right-container');
