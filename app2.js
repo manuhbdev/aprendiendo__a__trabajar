@@ -75,7 +75,7 @@ function drawFooterAppBar(windows, targetContainer) {
   });
 }
 // right-click menu
-function rightClickHandler(e) {
+function rightClickMenuHandler(e) {
   e.preventDefault();
 
   if (e.target.closest('#windows-container') || e.target.closest('#navbar')) {
@@ -152,7 +152,11 @@ function actionSettings() {
 
 // listeners
 function setListener__rightClick__on__screen(screenEl, overlay) {
-  screenEl.addEventListener('contextmenu', (e) => rightClickHandler(e), false);
+  screenEl.addEventListener(
+    'contextmenu',
+    (e) => rightClickMenuHandler(e),
+    false
+  );
   overlay.onclick = () => hideRightClickMenu();
 }
 function setListener__click__on__action(actions) {
