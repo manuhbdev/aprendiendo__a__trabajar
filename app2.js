@@ -1,3 +1,4 @@
+import { getState, getWindows, updateState } from './src/data/state.js';
 import {
   APP_STATES,
   DesktopIcon,
@@ -5,10 +6,12 @@ import {
   Notes,
   Papelera,
   Window,
-} from './src/models/models.js';
+} from './src/data/models.js';
+import { APP_EVENTS, sendEventUpdateUI } from './src/utils/appEvents.js';
 
 // window state
 function updateActiveWindow(app) {
+  const windows = getWindows();
   windows.forEach((w) => {
     if (w.id === app.id) {
       w.isActive = true;
@@ -24,6 +27,8 @@ function updateActiveWindow(app) {
   drawFooterAppBar(windows, footerAppBarContainer);
 }
 function openApp(id) {
+  const { windows } = getState();
+
   const w = windows.find((_app) => _app.id === id);
   w.open();
   updateActiveWindow(w);
@@ -43,6 +48,9 @@ function drawWindows(windows, targetContainer) {
   windows.forEach((w) => {
     const windowHTML = w.windowHTML;
     const windowName = windowHTML.querySelector('.window__header .name');
+    const windowAppName = windowHTML.querySelector('.window__header .app-name');
+    // update name
+    windowAppName.innerText = w.name;
     const windowContent = windowHTML.querySelector('.window__content');
     if (windowContent.innerHTML === '') {
       w.app.renderContent(windowContent);
@@ -114,31 +122,31 @@ function setFooterBarUpdateInterval() {
 //actions
 function actionNewFolder() {
   console.log('new-folder');
-  const app = new Folder({
+  const { desktopIcons, windows } = getState();
+  const newFolderApp = new Folder({
     id: apps.length,
     name: 'new-folder',
     icon: 'folder.svg',
     content: [],
   });
-  apps.push(app);
+  apps.push(newFolderApp);
   desktopIcons.push(
     new DesktopIcon({
-      id: app.id,
-      icon: app.icon,
-      name: app.name,
-      app,
+      id: newFolderApp.id,
+      icon: newFolderApp.icon,
+      name: newFolderApp.name,
+      app: newFolderApp,
     })
   );
   windows.push(
     new Window({
-      id: app.id,
-      name: app.name,
-      icon: app.icon,
-      app,
+      id: newFolderApp.id,
+      name: newFolderApp.name,
+      icon: newFolderApp.icon,
+      app: newFolderApp,
     })
   );
-  drawDesktopIcons(desktopIcons, desktopIconsContainer);
-  drawWindows(windows, windowsContainer);
+  sendEventUpdateUI();
 }
 function actionNewFile() {
   console.log('new-file');
@@ -188,20 +196,35 @@ function setListener__click__on__action(actions) {
     };
   });
 }
+
+function setListener__updateUI() {
+  document.addEventListener(APP_EVENTS.UPDATE_UI, updateUIHandler);
+}
+
 // [START]
 function initApp() {
+  // data
   createApps();
-  // UI
-  drawDesktopIcons(desktopIcons, desktopIconsContainer);
-  drawWindows(windows, windowsContainer);
   // listeners
   setListener__rightClick__on__screen(screenElement, rightClickMenuOverlay);
   setListener__click__on__action(actionsButtons);
+  setListener__updateUI();
   // intervals
   setClockInterval(timeElement);
-  setFooterBarUpdateInterval();
+  //
+  sendEventUpdateUI();
+}
+function updateUIHandler() {
+  const { desktopIcons, windows } = getState();
+
+  drawDesktopIcons(desktopIcons, desktopIconsContainer);
+  drawWindows(windows, windowsContainer);
+  drawFooterAppBar(windows, footerAppBarContainer);
+
+  console.log({ state: getState() });
 }
 function createApps() {
+  const { desktopIcons, windows } = getState();
   apps.forEach((app) => {
     desktopIcons.push(
       new DesktopIcon({ id: app.id, icon: app.icon, name: app.name, app })
@@ -210,6 +233,7 @@ function createApps() {
       new Window({ id: app.id, name: app.name, icon: app.icon, app })
     );
   });
+  updateState({ windows, desktopIcons });
 }
 
 const apps = [
@@ -257,8 +281,6 @@ const apps = [
     content: [],
   }),
 ];
-let windows = [];
-let desktopIcons = [];
 
 // UI ref
 const screenElement = document.getElementById('content');

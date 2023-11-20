@@ -1,4 +1,6 @@
+import { sendEventUpdateUI } from '../utils/appEvents.js';
 import { dragElement } from '../utils/draggable.js';
+import { setWindowName } from './state.js';
 class App {
   constructor({ id, name, className, type = 'app', content, icon }) {
     this.id = `${type}__${name}__${id}`.toLocaleLowerCase();
@@ -36,7 +38,7 @@ export class Window {
     <div class="window__header">
     <div class="name">
         <img width="16px" src="/img/icons/${this.icon}"/>
-        <p>${this.name}</p>
+        <p class="app-name">${this.name}</p>
     </div>
     
      <div class="window__controls">
@@ -73,6 +75,7 @@ export class Window {
     this.windowHTML.classList.remove('min');
     this.windowHTML.classList.remove('active');
     this.windowHTML.classList.remove('close');
+    // this.redraw();
   }
   minimize(windowHTML) {
     this.state = APP_STATES.MIN;
@@ -81,6 +84,7 @@ export class Window {
     windowHTML.classList.remove('open');
     windowHTML.classList.remove('active');
     windowHTML.classList.remove('close');
+    this.redraw();
   }
   close(windowHTML) {
     this.state = APP_STATES.CLOSED;
@@ -89,6 +93,12 @@ export class Window {
     windowHTML.classList.remove('open');
     windowHTML.classList.remove('active');
     windowHTML.classList.remove('min');
+    this.redraw();
+  }
+  redraw() {
+    setTimeout(() => {
+      sendEventUpdateUI();
+    }, 300);
   }
 }
 export class DesktopIcon {
@@ -101,11 +111,43 @@ export class DesktopIcon {
   getHTML() {
     const iconDiv = document.createElement('div');
     iconDiv.classList.add('icon');
-    const editableAttr = this.app.type === 'folder';
-    iconDiv.innerHTML = `
-    <img width="32px" src="/img/icons/${this.icon}"/>
-    <p class="name" contenteditable="${editableAttr}">${this.name}</p>
-  `;
+
+    const isEditable = this.app.type === 'folder';
+    if (isEditable) {
+      iconDiv.innerHTML = `
+      <img width="32px" src="/img/icons/${this.icon}"/>
+      <p class="name" spellcheck="false"  contenteditable="true" >${this.name}</p>
+    `;
+      const folderName = iconDiv.querySelector('.name');
+      folderName.addEventListener('blur', (event) => {
+        const newName = event.target.firstChild?.data || '';
+        const cleanName = newName.replace(/\s/g, '');
+        const validName = cleanName !== '';
+        if (!validName) {
+          event.target.innerHTML = '';
+          event.target.innerText = this.name;
+          return;
+        }
+        // update icon-name
+        this.name = cleanName;
+
+        // update-desktop-icon
+
+        // update-window-name (open)
+        // const windowApp = getWindow(this.app.id);
+        // windowApp.name = cleanName;
+
+        setWindowName(this.app.id, cleanName);
+
+        sendEventUpdateUI();
+      });
+    } else {
+      iconDiv.innerHTML = `
+      <img width="32px" src="/img/icons/${this.icon}"/>
+      <p class="name">${this.name}</p>
+    `;
+    }
+
     return iconDiv;
   }
 }
