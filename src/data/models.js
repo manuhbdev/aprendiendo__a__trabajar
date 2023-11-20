@@ -116,7 +116,7 @@ export class DesktopIcon {
     if (isEditable) {
       iconDiv.innerHTML = `
       <img width="32px" src="/img/icons/${this.icon}"/>
-      <p class="name" spellcheck="false"  contenteditable="true" >${this.name}</p>
+      <p class="name" spellcheck="false"  contenteditable="true" ondrop="return false;"  >${this.name}</p>
     `;
       const folderName = iconDiv.querySelector('.name');
       folderName.addEventListener('blur', (event) => {
@@ -134,9 +134,6 @@ export class DesktopIcon {
         // update-desktop-icon
 
         // update-window-name (open)
-        // const windowApp = getWindow(this.app.id);
-        // windowApp.name = cleanName;
-
         setWindowName(this.app.id, cleanName);
 
         sendEventUpdateUI();
@@ -215,6 +212,9 @@ export class Notes extends App {
     textArea.classList.add('editor');
     textArea.setAttribute('contenteditable', true);
     textArea.setAttribute('autofocus', true);
+    textArea.ondrop = () => {
+      return false;
+    };
     textArea.style.width = `${100}%`;
     textArea.style.height = `${100}%`;
     textArea.innerHTML = 'Untitled';

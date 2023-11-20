@@ -1,4 +1,4 @@
-import { getState, getWindows, updateState } from './src/data/state.js';
+import { getState, getWindows, getWindow } from './src/data/state.js';
 import {
   APP_STATES,
   DesktopIcon,
@@ -9,7 +9,6 @@ import {
 } from './src/data/models.js';
 import { APP_EVENTS, sendEventUpdateUI } from './src/utils/appEvents.js';
 
-// window state
 function updateActiveWindow(app) {
   const windows = getWindows();
   windows.forEach((w) => {
@@ -24,22 +23,29 @@ function updateActiveWindow(app) {
       w.windowHTML.classList.remove('active');
     }
   });
-  drawFooterAppBar(windows, footerAppBarContainer);
 }
 function openApp(id) {
-  const { windows } = getState();
-
-  const w = windows.find((_app) => _app.id === id);
+  const w = getWindow(id);
   w.open();
   updateActiveWindow(w);
-  drawFooterAppBar(windows, footerAppBarContainer);
+  sendEventUpdateUI();
 }
 // draw UI
+function updateUIHandler() {
+  const { desktopIcons, windows } = getState();
+
+  drawDesktopIcons(desktopIcons, desktopIconsContainer);
+  drawWindows(windows, windowsContainer);
+  drawFooterAppBar(windows, footerAppBarContainer);
+
+  console.log({ state: getState() });
+}
 function drawDesktopIcons(icons, targetContainer) {
   targetContainer.innerHTML = '';
   icons.forEach((icon) => {
     const iconHTML = icon.getHTML();
-    iconHTML.onclick = () => openApp(icon.id);
+    const iconImg = iconHTML.querySelector('img');
+    iconImg.onclick = () => openApp(icon.id);
     targetContainer.appendChild(iconHTML);
   });
 }
@@ -114,15 +120,10 @@ function setClockInterval(targetEl) {
     targetEl.innerText = `${hours}:${minutes}`;
   }, 1 * 1000);
 }
-function setFooterBarUpdateInterval() {
-  setInterval(() => {
-    drawFooterAppBar(windows, footerAppBarContainer);
-  }, 300);
-}
 //actions
 function actionNewFolder() {
   console.log('new-folder');
-  const { desktopIcons, windows } = getState();
+  const { desktopIcons, windows, apps } = getState();
   const newFolderApp = new Folder({
     id: apps.length,
     name: 'new-folder',
@@ -203,28 +204,18 @@ function setListener__updateUI() {
 
 // [START]
 function initApp() {
-  // data
-  createApps();
   // listeners
   setListener__rightClick__on__screen(screenElement, rightClickMenuOverlay);
   setListener__click__on__action(actionsButtons);
   setListener__updateUI();
   // intervals
   setClockInterval(timeElement);
-  //
-  sendEventUpdateUI();
+  //UI
+  createUI();
 }
-function updateUIHandler() {
-  const { desktopIcons, windows } = getState();
 
-  drawDesktopIcons(desktopIcons, desktopIconsContainer);
-  drawWindows(windows, windowsContainer);
-  drawFooterAppBar(windows, footerAppBarContainer);
-
-  console.log({ state: getState() });
-}
-function createApps() {
-  const { desktopIcons, windows } = getState();
+function createUI() {
+  const { apps, desktopIcons, windows } = getState(); // mutable
   apps.forEach((app) => {
     desktopIcons.push(
       new DesktopIcon({ id: app.id, icon: app.icon, name: app.name, app })
@@ -233,54 +224,9 @@ function createApps() {
       new Window({ id: app.id, name: app.name, icon: app.icon, app })
     );
   });
-  updateState({ windows, desktopIcons });
+  //
+  sendEventUpdateUI();
 }
-
-const apps = [
-  new Folder({
-    id: 0,
-    name: 'documents',
-    icon: 'folder.svg',
-    content: [
-      {
-        name: 'estatuto_fundación',
-        type: 'docx',
-        icon: 'docx.svg',
-      },
-      {
-        name: 'cv-final-final',
-        type: 'docx',
-        icon: 'docx.svg',
-      },
-      {
-        name: 'cv-final',
-        type: 'docx',
-        icon: 'docx.svg',
-      },
-      {
-        name: 'cv-final-english',
-        type: 'docx',
-        icon: 'docx.svg',
-      },
-    ],
-  }),
-  new Papelera({
-    id: 1,
-    name: 'Papelera',
-    icon: 'trash-can.svg',
-    content: [
-      {
-        name: 'movies___XXX',
-        type: 'zip',
-        icon: 'zip.svg',
-      },
-    ],
-  }),
-  new Notes({
-    id: 2,
-    content: [],
-  }),
-];
 
 // UI ref
 const screenElement = document.getElementById('content');
