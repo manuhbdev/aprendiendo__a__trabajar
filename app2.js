@@ -3,8 +3,8 @@ import {
   APP_STATES,
   DesktopIcon,
   Folder,
-  Notes,
-  Papelera,
+  File,
+  RESOURCE_TYPES,
   Window,
 } from './src/data/models.js';
 import { APP_EVENTS, sendEventUpdateUI } from './src/utils/appEvents.js';
@@ -29,6 +29,26 @@ function openApp(id) {
   w.open();
   updateActiveWindow(w);
   sendEventUpdateUI();
+}
+function appendAppToUIElements(app) {
+  const { desktopIcons, windows, apps } = getState();
+  apps.push(app);
+  desktopIcons.push(
+    new DesktopIcon({
+      id: app.id,
+      icon: app.icon,
+      name: app.name,
+      app,
+    })
+  );
+  windows.push(
+    new Window({
+      id: app.id,
+      name: app.name,
+      icon: app.icon,
+      app,
+    })
+  );
 }
 // draw UI
 function updateUIHandler() {
@@ -120,37 +140,82 @@ function setClockInterval(targetEl) {
     targetEl.innerText = `${hours}:${minutes}`;
   }, 1 * 1000);
 }
-//actions
+function createName(initialName, type) {
+  const { apps } = getState();
+  const folderList = apps
+    .filter((app) => app.type === type)
+    .map((folder) => folder.name);
+  //
+  let newName = initialName;
+  let counter = 1;
+  while (folderList.includes(newName)) {
+    newName = `${initialName}_${counter}`;
+    counter++;
+  }
+  return newName;
+}
+// actions
 function actionNewFolder() {
-  console.log('new-folder');
-  const { desktopIcons, windows, apps } = getState();
+  const { apps } = getState();
+  const defaultName = createName('new-folder', RESOURCE_TYPES.FOLDER);
   const newFolderApp = new Folder({
     id: apps.length,
-    name: 'new-folder',
+    name: defaultName,
     icon: 'folder.svg',
     content: [],
   });
-  apps.push(newFolderApp);
-  desktopIcons.push(
-    new DesktopIcon({
-      id: newFolderApp.id,
-      icon: newFolderApp.icon,
-      name: newFolderApp.name,
-      app: newFolderApp,
-    })
-  );
-  windows.push(
-    new Window({
-      id: newFolderApp.id,
-      name: newFolderApp.name,
-      icon: newFolderApp.icon,
-      app: newFolderApp,
-    })
-  );
+  //
+  appendAppToUIElements(newFolderApp);
   sendEventUpdateUI();
 }
 function actionNewFile() {
   console.log('new-file');
+  const { apps } = getState();
+  const defaultName = createName('new-file', RESOURCE_TYPES.FILE);
+  const newFileApp = new File({
+    id: apps.length,
+    name: defaultName,
+    className: 'file',
+    type: '',
+    icon: 'txt.svg',
+    content: '',
+  });
+  //
+  appendAppToUIElements(newFileApp);
+  sendEventUpdateUI();
+}
+function actionNewResource(defaultName, type) {
+  const { apps } = getState();
+  const resourceName = createName(defaultName, type);
+  let newResourceApp = null;
+
+  switch (type) {
+    case RESOURCE_TYPES.FILE:
+      newResourceApp = new File({
+        id: apps.length,
+        name: resourceName,
+        className: 'file',
+        type: '',
+        icon: 'txt.svg',
+        content: '',
+      });
+      break;
+    case RESOURCE_TYPES.FOLDER:
+      newResourceApp = new Folder({
+        id: apps.length,
+        name: resourceName,
+        icon: 'folder.svg',
+        content: [],
+      });
+      break;
+    default:
+      console.warn('unknown resource', { defaultName, type });
+      return;
+      break;
+  }
+  //
+  appendAppToUIElements(newResourceApp);
+  sendEventUpdateUI();
 }
 function actionPersonalizar() {
   console.log('personalizar');
@@ -175,19 +240,17 @@ function setListener__click__on__action(actions) {
       switch (btn.name) {
         case 'new-folder':
           actionNewFolder();
-
+          // actionNewResource('new-folder', RESOURCE_TYPES.FOLDER);
           break;
         case 'new-file':
           actionNewFile();
-
+          // actionNewResource('new-file', RESOURCE_TYPES.FILE);
           break;
         case 'personalizar':
           actionPersonalizar();
-
           break;
         case 'settings':
           actionSettings();
-
           break;
         default:
           console.warn('invalid action');
@@ -197,7 +260,6 @@ function setListener__click__on__action(actions) {
     };
   });
 }
-
 function setListener__updateUI() {
   document.addEventListener(APP_EVENTS.UPDATE_UI, updateUIHandler);
 }
@@ -213,18 +275,9 @@ function initApp() {
   //UI
   createUI();
 }
-
 function createUI() {
-  const { apps, desktopIcons, windows } = getState(); // mutable
-  apps.forEach((app) => {
-    desktopIcons.push(
-      new DesktopIcon({ id: app.id, icon: app.icon, name: app.name, app })
-    );
-    windows.push(
-      new Window({ id: app.id, name: app.name, icon: app.icon, app })
-    );
-  });
-  //
+  const { apps } = getState(); // mutable
+  apps.forEach((app) => appendAppToUIElements(app));
   sendEventUpdateUI();
 }
 

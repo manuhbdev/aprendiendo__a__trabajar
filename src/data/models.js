@@ -1,6 +1,18 @@
 import { sendEventUpdateUI } from '../utils/appEvents.js';
 import { dragElement } from '../utils/draggable.js';
 import { setWindowName } from './state.js';
+
+export const APP_STATES = {
+  OPEN: 'open',
+  CLOSED: 'close',
+  MIN: 'min',
+};
+
+export const RESOURCE_TYPES = {
+  ASSET: 'ASSET',
+  FILE: 'FILE',
+  FOLDER: 'FOLDER',
+};
 class App {
   constructor({ id, name, className, type = 'app', content, icon }) {
     this.id = `${type}__${name}__${id}`.toLocaleLowerCase();
@@ -14,11 +26,6 @@ class App {
   }
   renderContent() {}
 }
-export const APP_STATES = {
-  OPEN: 'open',
-  CLOSED: 'close',
-  MIN: 'min',
-};
 export class Window {
   constructor({ id, name, icon, app }) {
     this.state = APP_STATES.CLOSED;
@@ -112,7 +119,9 @@ export class DesktopIcon {
     const iconDiv = document.createElement('div');
     iconDiv.classList.add('icon');
 
-    const isEditable = this.app.type === 'folder';
+    const isFile = this.app.type === RESOURCE_TYPES.FILE;
+    const isFolder = this.app.type === RESOURCE_TYPES.FOLDER;
+    const isEditable = isFile || isFolder;
     if (isEditable) {
       iconDiv.innerHTML = `
       <img width="32px" src="/img/icons/${this.icon}"/>
@@ -176,7 +185,7 @@ export class Papelera extends App {
 }
 export class Folder extends App {
   constructor(shape) {
-    shape.type = 'folder';
+    shape.type = RESOURCE_TYPES.FOLDER;
     super(shape);
   }
   renderContent(targetHTMLElement) {
@@ -200,11 +209,27 @@ export class Folder extends App {
     targetHTMLElement.appendChild(containerDIV);
   }
 }
+export class File extends App {
+  constructor(shape) {
+    shape.type = RESOURCE_TYPES.FILE;
+    super(shape);
+  }
+  renderContent(targetHTMLElement) {
+    const textArea = document.createElement('div');
+    textArea.setAttribute('contenteditable', true);
+    textArea.setAttribute('autofocus', true);
+    textArea.ondrop = () => {
+      return false;
+    };
+    textArea.style.width = `${100}%`;
+    textArea.style.height = `${100}%`;
+    targetHTMLElement.appendChild(textArea);
+  }
+}
 export class Notes extends App {
   constructor(shape) {
     shape.name = 'notes';
     shape.icon = 'notepad.svg';
-    shape.type = 'notepad';
     super(shape);
   }
   renderContent(targetHTMLElement) {
