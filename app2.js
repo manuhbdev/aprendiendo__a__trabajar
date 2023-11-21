@@ -142,13 +142,13 @@ function setClockInterval(targetEl) {
 }
 function createName(initialName, type) {
   const { apps } = getState();
-  const folderList = apps
+  const appNameList = apps
     .filter((app) => app.type === type)
     .map((folder) => folder.name);
   //
   let newName = initialName;
   let counter = 1;
-  while (folderList.includes(newName)) {
+  while (appNameList.includes(newName)) {
     newName = `${initialName}_${counter}`;
     counter++;
   }
@@ -239,12 +239,10 @@ function setListener__click__on__action(actions) {
       const btn = e.target.closest('.action');
       switch (btn.name) {
         case 'new-folder':
-          actionNewFolder();
-          // actionNewResource('new-folder', RESOURCE_TYPES.FOLDER);
+          actionNewResource('new-folder', RESOURCE_TYPES.FOLDER);
           break;
         case 'new-file':
-          actionNewFile();
-          // actionNewResource('new-file', RESOURCE_TYPES.FILE);
+          actionNewResource('new-file', RESOURCE_TYPES.FILE);
           break;
         case 'personalizar':
           actionPersonalizar();
