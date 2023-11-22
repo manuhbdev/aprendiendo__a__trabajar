@@ -1,4 +1,9 @@
-import { getState, getWindows, getWindow } from './src/data/state.js';
+import {
+  getState,
+  getWindows,
+  getWindow,
+  defaultApps,
+} from './src/data/state.js';
 import {
   APP_STATES,
   DesktopIcon,
@@ -230,11 +235,10 @@ function initApp() {
   // intervals
   setClockInterval(timeElement);
   //UI
-  createUI();
+  createUI(defaultApps);
 }
-function createUI() {
-  const { apps } = getState(); // mutable
-  apps.forEach((app) => appendAppToUIElements(app));
+function createUI(defaultApps) {
+  defaultApps.forEach((app) => appendAppToUIElements(app));
   sendEventUpdateUI();
 }
 

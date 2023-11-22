@@ -1,6 +1,6 @@
 import { Folder, Notes, Papelera } from './models.js';
 
-const defaultApps = [
+export const defaultApps = [
   new Folder({
     id: 0,
     name: 'documents',
@@ -46,7 +46,7 @@ const defaultApps = [
   }),
 ];
 const initialState = {
-  apps: defaultApps,
+  apps: [],
   windows: [],
   desktopIcons: [],
   // [next steps]
