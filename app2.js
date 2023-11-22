@@ -8,6 +8,7 @@ import {
   Window,
 } from './src/data/models.js';
 import { APP_EVENTS, sendEventUpdateUI } from './src/utils/appEvents.js';
+import { createName } from './src/utils/utils.js';
 
 function updateActiveWindow(app) {
   const windows = getWindows();
@@ -140,50 +141,8 @@ function setClockInterval(targetEl) {
     targetEl.innerText = `${hours}:${minutes}`;
   }, 1 * 1000);
 }
-function createName(initialName, type) {
-  const { apps } = getState();
-  const appNameList = apps
-    .filter((app) => app.type === type)
-    .map((folder) => folder.name);
-  //
-  let newName = initialName;
-  let counter = 1;
-  while (appNameList.includes(newName)) {
-    newName = `${initialName}_${counter}`;
-    counter++;
-  }
-  return newName;
-}
+
 // actions
-function actionNewFolder() {
-  const { apps } = getState();
-  const defaultName = createName('new-folder', RESOURCE_TYPES.FOLDER);
-  const newFolderApp = new Folder({
-    id: apps.length,
-    name: defaultName,
-    icon: 'folder.svg',
-    content: [],
-  });
-  //
-  appendAppToUIElements(newFolderApp);
-  sendEventUpdateUI();
-}
-function actionNewFile() {
-  console.log('new-file');
-  const { apps } = getState();
-  const defaultName = createName('new-file', RESOURCE_TYPES.FILE);
-  const newFileApp = new File({
-    id: apps.length,
-    name: defaultName,
-    className: 'file',
-    type: '',
-    icon: 'txt.svg',
-    content: '',
-  });
-  //
-  appendAppToUIElements(newFileApp);
-  sendEventUpdateUI();
-}
 function actionNewResource(defaultName, type) {
   const { apps } = getState();
   const resourceName = createName(defaultName, type);

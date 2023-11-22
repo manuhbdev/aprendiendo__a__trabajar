@@ -1,5 +1,6 @@
 import { sendEventUpdateUI } from '../utils/appEvents.js';
 import { dragElement } from '../utils/draggable.js';
+import { createName } from '../utils/utils.js';
 import { setWindowName } from './state.js';
 
 export const APP_STATES = {
@@ -127,8 +128,8 @@ export class DesktopIcon {
       <img width="32px" src="/img/icons/${this.icon}"/>
       <p class="name" spellcheck="false"  contenteditable="true" ondrop="return false;"  >${this.name}</p>
     `;
-      const folderName = iconDiv.querySelector('.name');
-      folderName.addEventListener('blur', (event) => {
+      const resourceName = iconDiv.querySelector('.name');
+      resourceName.addEventListener('blur', (event) => {
         const newName = event.target.firstChild?.data || '';
         const cleanName = newName.replace(/\s/g, '');
         const validName = cleanName !== '';
@@ -137,14 +138,10 @@ export class DesktopIcon {
           event.target.innerText = this.name;
           return;
         }
-        // update icon-name
-        this.name = cleanName;
-
-        // update-desktop-icon
-
-        // update-window-name (open)
+        //
+        this.name = createName(cleanName, this.app.type);
         setWindowName(this.app.id, cleanName);
-
+        // updateUI
         sendEventUpdateUI();
       });
     } else {
