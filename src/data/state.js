@@ -1,4 +1,6 @@
-import { Folder, Notes, Papelera } from './models.js';
+import { file_system } from '../system/file_system.js';
+import { Shell } from '../system/shell.js';
+import { Folder, Notes, Papelera, Terminal } from './models.js';
 
 export const defaultApps = [
   new Folder({
@@ -44,6 +46,13 @@ export const defaultApps = [
     id: 2,
     content: [],
   }),
+  new Terminal(
+    {
+      id: 3,
+      content: [],
+    },
+    new Shell(file_system)
+  ),
 ];
 const initialState = {
   apps: [],

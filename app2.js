@@ -226,6 +226,10 @@ function setListener__updateUI() {
   document.addEventListener(APP_EVENTS.UPDATE_UI, updateUIHandler);
 }
 
+function load_OS() {
+  //
+}
+
 // [START]
 function initApp() {
   // listeners

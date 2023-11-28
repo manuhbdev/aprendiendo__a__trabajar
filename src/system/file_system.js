@@ -1,4 +1,4 @@
-class TreeNode {
+export class TreeNode {
   constructor(name, isDirectory, parent = null) {
     this.name = name;
     this.isDirectory = isDirectory;
@@ -8,6 +8,14 @@ class TreeNode {
   addChild(childNode) {
     childNode.parent = this;
     this.children.push(childNode);
+  }
+  get_full_path() {
+    if (this.parent) {
+      const parentPath = this.parent.get_full_path();
+      return `${parentPath}/${this.name}`;
+    } else {
+      return `${this.name}`;
+    }
   }
 }
 
@@ -32,20 +40,20 @@ function create_file_system() {
 
   // connect-nodes
   root.addChild(bin__directory);
-  root.addChild(sbin__directory);
-  root.addChild(etc__directory);
-  root.addChild(dev__directory);
-  root.addChild(proc__directory);
-  root.addChild(var__directory);
-  root.addChild(tmp__directory);
-  root.addChild(usr__directory);
+  // root.addChild(sbin__directory);
+  // root.addChild(etc__directory);
+  // root.addChild(dev__directory);
+  // root.addChild(proc__directory);
+  // root.addChild(var__directory);
+  // root.addChild(tmp__directory);
+  // root.addChild(usr__directory);
   root.addChild(home__directory);
-  root.addChild(boot__directory);
-  root.addChild(lib__directory);
-  root.addChild(opt__directory);
-  root.addChild(mnt__directory);
-  root.addChild(media__directory);
-  root.addChild(srv__directory);
+  // root.addChild(boot__directory);
+  // root.addChild(lib__directory);
+  // root.addChild(opt__directory);
+  // root.addChild(mnt__directory);
+  // root.addChild(media__directory);
+  // root.addChild(srv__directory);
   //
   home__directory.addChild(create_vfs_user('guest'));
 

@@ -48,7 +48,7 @@ export class Window {
         <img width="16px" src="/img/icons/${this.icon}"/>
         <p class="app-name">${this.name}</p>
     </div>
-    
+
      <div class="window__controls">
         <div class="control min">-</div>
         <div class="control close">
@@ -241,5 +241,52 @@ export class Notes extends App {
     textArea.style.height = `${100}%`;
     textArea.innerHTML = 'Untitled';
     targetHTMLElement.appendChild(textArea);
+  }
+}
+export class Terminal extends App {
+  constructor(shape, shell) {
+    shape.name = 'terminal';
+    shape.icon = 'terminal.svg';
+    super(shape);
+    this.shell = shell;
+  }
+  renderContent(targetHTMLElement) {
+    // template
+    const terminal_div = document.createElement('div');
+    const terminal_HTML = `
+    <div id="terminal_${this.id}" class="terminal">
+      <div id="terminal__output" class="terminal_output"></div>
+      <div class="input-bar">
+        <label
+          for="terminal__input"
+          id="terminal__input-label"
+          class="unselectable"
+          ></label
+        >
+        <input type="text" id="terminal__input" />
+      </div>
+    </div>
+    `;
+    terminal_div.innerHTML = terminal_HTML;
+    // input_label
+    const input_label = terminal_div.querySelector(`#terminal__input-label`);
+    // input
+    const input = terminal_div.querySelector(`#terminal__input`);
+    input.addEventListener('keyup', (event) => {
+      const isEnter = event.key === 'Enter';
+      if (isEnter) {
+        const user_input = event.target;
+        this.shell.read(user_input.value);
+      }
+    });
+    // output
+    const output = terminal_div.querySelector(`#terminal__output`);
+    // shell UI - constructor vs props
+    this.shell.container_HTML = targetHTMLElement;
+    this.shell.input_HTML = input;
+    this.shell.input_label_HTML = input_label;
+    this.shell.output_HTML = output;
+    this.shell.update_label();
+    targetHTMLElement.appendChild(terminal_div);
   }
 }
