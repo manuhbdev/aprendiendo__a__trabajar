@@ -13,39 +13,6 @@ export class Shell {
     this.input_HTML = null;
     this.output_HTML = null;
   }
-  get_home_dir() {
-    const home = this.root.children.find((node) => node.name === 'home');
-    return home.children.find((node) => node.name === this.current_user);
-  }
-  update_label() {
-    this.input_label_HTML.innerText = `/${this.current_node.get_full_path()}`;
-  }
-  scroll_bottom() {
-    this.container_HTML.scrollTo({
-      top: this.output_HTML.scrollHeight,
-    });
-  }
-  clear() {
-    console.clear();
-    this.output_HTML.innerHTML = '';
-  }
-  print(text) {
-    console.log(text);
-    const output_record = document.createElement('pre');
-    output_record.innerText = text;
-    //
-    this.update_label();
-    this.output_HTML.appendChild(output_record);
-    this.scroll_bottom();
-  }
-  print_user_command(text) {
-    const output_record = document.createElement('pre');
-    output_record.classList.add('user_input');
-    // output_record.innerText = `/${this.current_node.get_full_path()} ${text}`;
-    output_record.innerText = `/${this.current_node.get_full_path()} ${text}`;
-    this.output_HTML.appendChild(output_record);
-    this.scroll_bottom();
-  }
   read(input) {
     this.print_user_command(input); // print user_input
     this.input_HTML.value = ''; // clear user_input
@@ -172,5 +139,41 @@ export class Shell {
         this.print("Invalid command. Type 'help' for a list of commands.");
         break;
     }
+  }
+  print(text) {
+    console.log(text);
+    // HTML_print
+    const output_record = document.createElement('pre');
+    output_record.innerText = text;
+    //
+    this.output_HTML.appendChild(output_record);
+    //
+    this.update_label();
+    this.scroll_bottom();
+  }
+  print_user_command(text) {
+    const output_record = document.createElement('pre');
+    output_record.classList.add('user_input');
+    // output_record.innerText = `/${this.current_node.get_full_path()} ${text}`;
+    output_record.innerText = `/${this.current_node.get_full_path()} ${text}`;
+    this.output_HTML.appendChild(output_record);
+    this.scroll_bottom();
+  }
+
+  get_home_dir() {
+    const home = this.root.children.find((node) => node.name === 'home');
+    return home.children.find((node) => node.name === this.current_user);
+  }
+  update_label() {
+    this.input_label_HTML.innerText = `/${this.current_node.get_full_path()}`;
+  }
+  scroll_bottom() {
+    this.container_HTML.scrollTo({
+      top: this.output_HTML.scrollHeight,
+    });
+  }
+  clear() {
+    console.clear();
+    this.output_HTML.innerHTML = '';
   }
 }
