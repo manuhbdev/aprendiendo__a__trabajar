@@ -10,6 +10,7 @@ export class TreeNode {
     this.children.push(childNode);
   }
   get_full_path() {
+    // up
     if (this.parent) {
       const parentPath = this.parent.get_full_path();
       return `${parentPath}/${this.name}`;
@@ -20,7 +21,7 @@ export class TreeNode {
 }
 
 function create_file_system() {
-  const root = new TreeNode('Root', true);
+  const root = new TreeNode('root', true);
   // create-nodes
   const bin__directory = new TreeNode('bin', true); // User Binaries
   const sbin__directory = new TreeNode('sbin', true); // System Binaries
@@ -41,7 +42,7 @@ function create_file_system() {
   // connect-nodes
   root.addChild(bin__directory);
   // root.addChild(sbin__directory);
-  // root.addChild(etc__directory);
+  root.addChild(etc__directory);
   // root.addChild(dev__directory);
   // root.addChild(proc__directory);
   // root.addChild(var__directory);

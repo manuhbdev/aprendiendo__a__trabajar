@@ -220,6 +220,7 @@ export class File extends App {
     };
     textArea.style.width = `${100}%`;
     textArea.style.height = `${100}%`;
+    //
     targetHTMLElement.appendChild(textArea);
   }
 }
@@ -239,10 +240,12 @@ export class Notes extends App {
     };
     textArea.style.width = `${100}%`;
     textArea.style.height = `${100}%`;
-    textArea.innerHTML = 'Untitled';
+    textArea.innerHTML = 'Untitled Note';
+    //
     targetHTMLElement.appendChild(textArea);
   }
 }
+//
 export class Terminal extends App {
   constructor(shape, shell) {
     shape.name = 'terminal';
@@ -271,8 +274,8 @@ export class Terminal extends App {
     // input_label
     const input_label = terminal_div.querySelector(`#terminal__input-label`);
     // input
-    const input = terminal_div.querySelector(`#terminal__input`);
-    input.addEventListener('keyup', (event) => {
+    const input_control = terminal_div.querySelector(`#terminal__input`);
+    input_control.addEventListener('keyup', (event) => {
       const isEnter = event.key === 'Enter';
       if (isEnter) {
         const user_input = event.target;
@@ -281,12 +284,13 @@ export class Terminal extends App {
     });
     // output
     const output = terminal_div.querySelector(`#terminal__output`);
-    // shell UI - constructor vs props
+    // connecting UI to shell
     this.shell.container_HTML = targetHTMLElement;
-    this.shell.input_HTML = input;
+    this.shell.input_HTML = input_control;
     this.shell.input_label_HTML = input_label;
     this.shell.output_HTML = output;
     this.shell.update_label();
+    // inject in window
     targetHTMLElement.appendChild(terminal_div);
   }
 }

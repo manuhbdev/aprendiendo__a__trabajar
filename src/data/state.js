@@ -49,7 +49,6 @@ export const defaultApps = [
   new Terminal(
     {
       id: 3,
-      content: [],
     },
     new Shell(file_system)
   ),
